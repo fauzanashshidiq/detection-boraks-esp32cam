@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Koleksi Dataset Boraks</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <main class="app">
+      <section class="panel control-panel">
+        <div class="title-row">
+          <div>
+            <p class="eyebrow">ESP32-CAM Dataset</p>
+            <h1>Koleksi Data Boraks</h1>
+          </div>
+          <div class="counter">
+            <span id="captureCount">0</span>
+            <small>gambar</small>
+          </div>
+        </div>
+
+        <label class="field">
+          <span>URL snapshot ESP32-CAM</span>
+          <input
+            id="cameraUrl"
+            type="url"
+            value="http://10.147.51.70/capture"
+            spellcheck="false"
+          />
+        </label>
+
+        <div class="field">
+          <span>Label kadar ppm</span>
+          <div id="labelGrid" class="label-grid"></div>
+        </div>
+
+        <button id="captureBtn" class="primary-btn" type="button">
+          Ambil & Simpan Gambar
+        </button>
+        <p id="status" class="status">Pilih label kadar, lalu ambil gambar.</p>
+      </section>
+
+      <section class="panel preview-panel">
+        <div class="preview-head">
+          <div>
+            <p class="eyebrow">Preview</p>
+            <h2>Gambar terakhir</h2>
+          </div>
+          <span id="activeLabel" class="badge">0ppm</span>
+        </div>
+        <div class="preview-box">
+          <img id="preview" alt="Preview gambar terakhir" />
+          <span id="emptyPreview">Belum ada gambar tersimpan</span>
+        </div>
+        <div class="history">
+          <h3>Riwayat sesi ini</h3>
+          <ul id="historyList"></ul>
+        </div>
+      </section>
+    </main>
+    <script src="/app.js"></script>
+  </body>
+</html>
