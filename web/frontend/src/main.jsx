@@ -27,9 +27,12 @@ import {
   TriangleAlert,
   Wifi,
 } from "lucide-react";
+import jsPDF from "jspdf";
+import autoTable from "jspdf-autotable";
 import "./styles.css";
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
+const API_BASE_URL =
+  import.meta.env.VITE_API_BASE_URL || "http://localhost:8000";
 const DEFAULT_CAMERA_URL =
   import.meta.env.VITE_DEFAULT_CAMERA_URL || "http://192.168.1.20/capture";
 const FEED_PLACEHOLDER =
@@ -49,7 +52,7 @@ function App() {
   const [query, setQuery] = React.useState("");
   const [statusFilter, setStatusFilter] = React.useState("all");
   const [selectedIds, setSelectedIds] = React.useState([]);
-  const [technician, setTechnician] = React.useState("Dr. Hendrawan Saputra");
+  const [technician, setTechnician] = React.useState("Nisrina Aliya");
   const [notes, setNotes] = React.useState("");
   const [loading, setLoading] = React.useState(false);
   const [error, setError] = React.useState("");
@@ -59,7 +62,9 @@ function App() {
   }, []);
 
   React.useEffect(() => {
-    setSelectedIds((ids) => ids.filter((id) => history.some((item) => item.id === id)));
+    setSelectedIds((ids) =>
+      ids.filter((id) => history.some((item) => item.id === id)),
+    );
   }, [history]);
 
   const filteredHistory = React.useMemo(
@@ -137,7 +142,11 @@ function App() {
 
   return (
     <main className="min-h-screen bg-background text-on-surface font-body-md">
-      <Sidebar activePage={activePage} setActivePage={setActivePage} onNewTest={startNewTest} />
+      <Sidebar
+        activePage={activePage}
+        setActivePage={setActivePage}
+        onNewTest={startNewTest}
+      />
       <TopBar
         activePage={activePage}
         query={query}
@@ -203,8 +212,12 @@ function Sidebar({ activePage, setActivePage, onNewTest }) {
   return (
     <aside className="fixed left-0 top-0 z-50 hidden h-full w-sidebar-width flex-col border-r border-outline-variant bg-tertiary py-8 lg:flex">
       <div className="mb-10 px-6">
-        <h1 className="text-headline-md font-bold text-tertiary-fixed">BoraxSense IoT</h1>
-        <p className="font-label-md text-label-md text-tertiary-fixed/70">Precision Detection</p>
+        <h1 className="text-headline-md font-bold text-tertiary-fixed">
+          BoraxSense IoT
+        </h1>
+        <p className="font-label-md text-label-md text-tertiary-fixed/70">
+          Precision Detection
+        </p>
       </div>
 
       <nav className="flex-1 space-y-1">
@@ -253,27 +266,34 @@ function SideLink({ icon: Icon, label }) {
 }
 
 function TopBar({ activePage, query, setQuery, loading, onRefresh }) {
-  const title = navigation.find((item) => item.id === activePage)?.label || "System Status";
+  const title =
+    navigation.find((item) => item.id === activePage)?.label || "System Status";
 
   return (
     <header className="fixed left-0 right-0 top-0 z-40 flex min-h-16 flex-col gap-3 border-b border-outline-variant bg-surface px-margin-mobile py-3 lg:left-sidebar-width lg:min-h-16 lg:flex-row lg:items-center lg:justify-between lg:px-margin-desktop lg:py-0">
       <div className="flex flex-wrap items-center gap-4 lg:gap-8">
-        <h2 className="text-headline-md font-extrabold text-primary">System Status</h2>
+        <h2 className="text-headline-md font-extrabold text-primary">
+          System Status
+        </h2>
         <div className="flex items-center gap-2 rounded-full bg-surface-container px-3 py-1">
           <div className="h-2 w-2 rounded-full bg-[#22c55e] borax-pulse" />
-          <span className="font-label-sm text-label-sm text-on-surface-variant">IoT Device Online</span>
+          <span className="font-label-sm text-label-sm text-on-surface-variant">
+            IoT Device Online
+          </span>
         </div>
         <nav className="hidden gap-6 md:flex">
           <span className="border-b-2 border-primary pb-1 font-label-sm text-label-sm font-bold text-primary">
             {title}
           </span>
-          <span className="font-label-sm text-label-sm font-medium text-on-surface-variant">Analytics</span>
         </nav>
       </div>
 
       <div className="flex flex-wrap items-center gap-3 lg:gap-5">
         <label className="relative flex h-10 min-w-[220px] flex-1 items-center rounded-full bg-surface-container-low lg:flex-none">
-          <Search className="absolute left-3 text-on-surface-variant" size={17} />
+          <Search
+            className="absolute left-3 text-on-surface-variant"
+            size={17}
+          />
           <input
             value={query}
             onChange={(event) => setQuery(event.target.value)}
@@ -304,7 +324,15 @@ function TopBar({ activePage, query, setQuery, loading, onRefresh }) {
   );
 }
 
-function TestingPage({ cameraUrl, setCameraUrl, result, history, loading, onCamera, onUpload }) {
+function TestingPage({
+  cameraUrl,
+  setCameraUrl,
+  result,
+  history,
+  loading,
+  onCamera,
+  onUpload,
+}) {
   const ppm = parsePpm(result?.label);
   const gaugePercent = Math.min((ppm / 2000) * 100, 100);
   const safe = !result || isSafe(result.label);
@@ -332,10 +360,16 @@ function TestingPage({ cameraUrl, setCameraUrl, result, history, loading, onCame
           />
           <div className="pointer-events-none absolute inset-0 border-[18px] border-dashed border-primary/10" />
           <div className="absolute bottom-4 right-4 flex gap-2">
-            <button className="rounded bg-black/50 p-2 text-white transition-colors hover:bg-black/70" aria-label="Fullscreen">
+            <button
+              className="rounded bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
+              aria-label="Fullscreen"
+            >
               <Maximize2 size={20} />
             </button>
-            <button className="rounded bg-black/50 p-2 text-white transition-colors hover:bg-black/70" aria-label="Camera settings">
+            <button
+              className="rounded bg-black/50 p-2 text-white transition-colors hover:bg-black/70"
+              aria-label="Camera settings"
+            >
               <SlidersHorizontal size={20} />
             </button>
           </div>
@@ -354,31 +388,51 @@ function TestingPage({ cameraUrl, setCameraUrl, result, history, loading, onCame
               disabled={loading}
               className="flex h-12 items-center justify-center gap-2 rounded-full bg-primary px-8 font-bold text-on-primary shadow-lg shadow-primary/20 transition-all hover:scale-[1.02] disabled:opacity-70"
             >
-              {loading ? <RefreshCw className="animate-spin" size={19} /> : <TestTube2 size={19} />}
+              {loading ? (
+                <RefreshCw className="animate-spin" size={19} />
+              ) : (
+                <TestTube2 size={19} />
+              )}
               {loading ? "Analysing..." : "Start Test"}
             </button>
             <label className="flex h-12 cursor-pointer items-center justify-center gap-2 rounded-full border border-outline px-6 font-bold text-on-surface-variant transition-colors hover:bg-surface-container">
               <ImageUp size={18} />
               Upload
-              <input type="file" accept="image/*" onChange={onUpload} className="hidden" />
+              <input
+                type="file"
+                accept="image/*"
+                onChange={onUpload}
+                className="hidden"
+              />
             </label>
           </div>
           <div className="text-left xl:text-right">
-            <span className="block font-label-sm text-label-sm text-on-surface-variant">Last Calibration</span>
-            <span className="font-bold text-on-surface">{formatDate(history[0]?.created_at) || "Belum tersedia"}</span>
+            <span className="block font-label-sm text-label-sm text-on-surface-variant">
+              Last Calibration
+            </span>
+            <span className="font-bold text-on-surface">
+              {formatDate(history[0]?.created_at) || "Belum tersedia"}
+            </span>
           </div>
         </div>
       </section>
 
       <aside className="col-span-12 flex flex-col gap-gutter lg:col-span-4">
         <ColorMonitor result={result} safe={safe} />
-        <ConcentrationGauge result={result} gaugePercent={gaugePercent} safe={safe} />
+        <ConcentrationGauge
+          result={result}
+          gaugePercent={gaugePercent}
+          safe={safe}
+        />
       </aside>
 
       <section className="col-span-12 grid grid-cols-1 gap-gutter md:grid-cols-3">
         <StatusCard result={result} safe={safe} />
-        <InfoCard icon={Gauge} label="Device Battery" value="84%" />
-        <InfoCard icon={BarChart3} label="Confidence" value={result?.confidence_percent || "-"} />
+        <InfoCard
+          icon={BarChart3}
+          label="Confidence"
+          value={result?.confidence_percent || "-"}
+        />
       </section>
 
       <section className="col-span-12 rounded-xl border border-outline-variant bg-surface-container-lowest p-stack-lg shadow-sm lg:col-span-5">
@@ -400,7 +454,11 @@ function TestingPage({ cameraUrl, setCameraUrl, result, history, loading, onCame
           {history.slice(0, 3).map((item, index) => (
             <RecentSample key={item.id || index} item={item} index={index} />
           ))}
-          {!history.length && <p className="text-on-surface-variant">Belum ada sampel tersimpan.</p>}
+          {!history.length && (
+            <p className="text-on-surface-variant">
+              Belum ada sampel tersimpan.
+            </p>
+          )}
         </div>
       </section>
     </div>
@@ -457,10 +515,14 @@ function ConcentrationGauge({ result, gaugePercent, safe }) {
         </div>
         <div className="flex items-end justify-between gap-4">
           <div>
-            <span className={`block text-display-lg font-display-lg ${safe ? "text-primary" : "text-secondary"}`}>
+            <span
+              className={`block text-display-lg font-display-lg ${safe ? "text-primary" : "text-secondary"}`}
+            >
               {result?.label || "-"}
             </span>
-            <span className="font-label-md text-label-md uppercase text-on-surface-variant">PPM (mg/kg)</span>
+            <span className="font-label-md text-label-md uppercase text-on-surface-variant">
+              PPM (mg/kg)
+            </span>
           </div>
           <span
             className={`rounded-full border px-3 py-1 font-label-sm text-label-sm ${
@@ -489,12 +551,18 @@ function StatusCard({ result, safe }) {
         safe ? "border-l-4 border-l-primary" : "border-l-4 border-l-secondary"
       }`}
     >
-      <div className={`flex h-12 w-12 items-center justify-center rounded-lg ${safe ? "bg-primary/10 text-primary" : "bg-secondary-fixed text-secondary"}`}>
+      <div
+        className={`flex h-12 w-12 items-center justify-center rounded-lg ${safe ? "bg-primary/10 text-primary" : "bg-secondary-fixed text-secondary"}`}
+      >
         <Icon size={24} />
       </div>
       <div>
-        <span className="block font-label-sm text-label-sm uppercase text-on-surface-variant">Result Analysis</span>
-        <span className={`text-headline-md font-bold ${safe ? "text-primary" : "text-secondary"}`}>
+        <span className="block font-label-sm text-label-sm uppercase text-on-surface-variant">
+          Result Analysis
+        </span>
+        <span
+          className={`text-headline-md font-bold ${safe ? "text-primary" : "text-secondary"}`}
+        >
           {!result ? "READY" : safe ? "SAFE" : "DETECTED"}
         </span>
       </div>
@@ -509,8 +577,12 @@ function InfoCard({ icon: Icon, label, value }) {
         <Icon size={23} />
       </div>
       <div>
-        <span className="block font-label-sm text-label-sm uppercase text-on-surface-variant">{label}</span>
-        <span className="text-headline-md font-bold text-on-surface">{value}</span>
+        <span className="block font-label-sm text-label-sm uppercase text-on-surface-variant">
+          {label}
+        </span>
+        <span className="text-headline-md font-bold text-on-surface">
+          {value}
+        </span>
       </div>
     </div>
   );
@@ -519,13 +591,23 @@ function InfoCard({ icon: Icon, label, value }) {
 function RecentSample({ item, index }) {
   const safe = isSafe(item.label);
   return (
-    <div className={`flex items-center justify-between gap-3 rounded-lg border p-3 ${safe ? "border-outline-variant/50 bg-surface" : "border-error/20 bg-error/5"}`}>
+    <div
+      className={`flex items-center justify-between gap-3 rounded-lg border p-3 ${safe ? "border-outline-variant/50 bg-surface" : "border-error/20 bg-error/5"}`}
+    >
       <div className="flex min-w-0 items-center gap-4">
-        <div className={`h-3 w-3 shrink-0 rounded-full ${safe ? "bg-primary" : "bg-error"}`} />
-        <span className="truncate font-label-md text-label-md">Sample_#{item.id?.slice(0, 4) || index + 1}</span>
+        <div
+          className={`h-3 w-3 shrink-0 rounded-full ${safe ? "bg-primary" : "bg-error"}`}
+        />
+        <span className="truncate font-label-md text-label-md">
+          Sample_#{item.id?.slice(0, 4) || index + 1}
+        </span>
       </div>
-      <span className="font-label-sm text-label-sm text-on-surface-variant">{item.label}</span>
-      <span className={`font-bold ${safe ? "text-primary" : "text-error"}`}>{safe ? "PASSED" : "DETECTED"}</span>
+      <span className="font-label-sm text-label-sm text-on-surface-variant">
+        {item.label}
+      </span>
+      <span className={`font-bold ${safe ? "text-primary" : "text-error"}`}>
+        {safe ? "PASSED" : "DETECTED"}
+      </span>
     </div>
   );
 }
@@ -545,8 +627,12 @@ function HistoryPage({
       <div className="mb-stack-lg flex flex-col gap-6">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h1 className="text-headline-lg font-headline-lg text-on-surface">Riwayat Pengetesan</h1>
-            <p className="mt-1 text-on-surface-variant">Kelola dan tinjau data hasil laboratorium IoT secara real-time.</p>
+            <h1 className="text-headline-lg font-headline-lg text-on-surface">
+              Riwayat Pengetesan
+            </h1>
+            <p className="mt-1 text-on-surface-variant">
+              Kelola dan tinjau data hasil laboratorium IoT secara real-time.
+            </p>
           </div>
           <div className="flex flex-wrap gap-3">
             <FilterButton icon={CalendarDays} label="Rentang Waktu" />
@@ -563,9 +649,23 @@ function HistoryPage({
 
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-4">
           <StatTile icon={TestTube2} label="Total Sampel" value={stats.total} />
-          <StatTile icon={CheckCircle2} label="Lolos Uji" value={stats.safe} tone="safe" />
-          <StatTile icon={TriangleAlert} label="Terdeteksi Borax" value={stats.detected} tone="alert" />
-          <StatTile icon={Gauge} label="Rata-rata Akurasi" value={stats.averageConfidence} />
+          <StatTile
+            icon={CheckCircle2}
+            label="Lolos Uji"
+            value={stats.safe}
+            tone="safe"
+          />
+          <StatTile
+            icon={TriangleAlert}
+            label="Terdeteksi Borax"
+            value={stats.detected}
+            tone="alert"
+          />
+          <StatTile
+            icon={Gauge}
+            label="Rata-rata Akurasi"
+            value={stats.averageConfidence}
+          />
         </div>
       </div>
 
@@ -584,15 +684,23 @@ function HistoryPage({
               <span className="rounded bg-primary/10 px-3 py-1 text-xs font-bold uppercase tracking-widest text-primary">
                 Quick Insight
               </span>
-              <span className="text-sm text-on-surface-variant">Last 24 Hours Analysis</span>
+              <span className="text-sm text-on-surface-variant">
+                Last 24 Hours Analysis
+              </span>
             </div>
-            <h3 className="mb-2 text-headline-md font-headline-md">Borax Concentration Trends</h3>
+            <h3 className="mb-2 text-headline-md font-headline-md">
+              Borax Concentration Trends
+            </h3>
             <p className="text-on-surface-variant">
-              Ringkasan otomatis mengikuti riwayat deteksi terbaru dari backend dan siap diekspor sebagai laporan.
+              Ringkasan otomatis mengikuti riwayat deteksi terbaru dari backend
+              dan siap diekspor sebagai laporan.
             </p>
           </div>
           <div className="mt-8 flex flex-wrap gap-4">
-            <button onClick={onExport} className="flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-bold text-white transition-opacity hover:opacity-90">
+            <button
+              onClick={onExport}
+              className="flex items-center gap-2 rounded-lg bg-primary px-6 py-3 font-bold text-white transition-opacity hover:opacity-90"
+            >
               <Download size={18} />
               Export Report
             </button>
@@ -606,8 +714,12 @@ function HistoryPage({
           <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-full bg-white/10 borax-pulse">
             <Wifi className="text-primary-fixed" size={36} />
           </div>
-          <h4 className="mb-2 text-headline-md font-headline-md">Sensor Healthy</h4>
-          <p className="mb-6 text-sm text-tertiary-fixed/80">Device ID: BS-IOT-4929</p>
+          <h4 className="mb-2 text-headline-md font-headline-md">
+            Sensor Healthy
+          </h4>
+          <p className="mb-6 text-sm text-tertiary-fixed/80">
+            Device ID: BS-IOT-4929
+          </p>
           <div className="flex items-center gap-2 font-bold text-primary-fixed">
             <div className="h-3 w-3 rounded-full bg-[#4ade80]" />
             LIVE MONITORING
@@ -634,13 +746,23 @@ function StatTile({ icon: Icon, label, value, tone = "default" }) {
     alert: "bg-error-container text-error",
   };
   return (
-    <div className={`flex items-center gap-4 rounded-xl border border-outline-variant bg-surface p-6 ${tone === "alert" ? "border-t-4 border-t-secondary" : ""}`}>
-      <div className={`flex h-12 w-12 items-center justify-center rounded-full ${styles[tone]}`}>
+    <div
+      className={`flex items-center gap-4 rounded-xl border border-outline-variant bg-surface p-6 ${tone === "alert" ? "border-t-4 border-t-secondary" : ""}`}
+    >
+      <div
+        className={`flex h-12 w-12 items-center justify-center rounded-full ${styles[tone]}`}
+      >
         <Icon size={23} />
       </div>
       <div>
-        <p className="font-label-sm text-label-sm uppercase text-on-surface-variant">{label}</p>
-        <p className={`text-headline-md font-headline-md ${tone === "alert" ? "text-secondary" : ""}`}>{value}</p>
+        <p className="font-label-sm text-label-sm uppercase text-on-surface-variant">
+          {label}
+        </p>
+        <p
+          className={`text-headline-md font-headline-md ${tone === "alert" ? "text-secondary" : ""}`}
+        >
+          {value}
+        </p>
       </div>
     </div>
   );
@@ -650,7 +772,10 @@ function HistoryFilters({ query, setQuery, statusFilter, setStatusFilter }) {
   return (
     <section className="mb-4 flex flex-col gap-3 rounded-xl border border-outline-variant bg-surface p-4 md:flex-row">
       <label className="relative flex-1">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" size={18} />
+        <Search
+          className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant"
+          size={18}
+        />
         <input
           value={query}
           onChange={(event) => setQuery(event.target.value)}
@@ -692,7 +817,10 @@ function HistoryTable({ history, total }) {
             ))}
             {!history.length && (
               <tr>
-                <td className="px-6 py-8 text-center text-on-surface-variant" colSpan="6">
+                <td
+                  className="px-6 py-8 text-center text-on-surface-variant"
+                  colSpan="6"
+                >
                   Belum ada data riwayat.
                 </td>
               </tr>
@@ -701,10 +829,15 @@ function HistoryTable({ history, total }) {
         </table>
       </div>
       <div className="flex flex-col gap-3 border-t border-outline-variant bg-surface px-6 py-4 md:flex-row md:items-center md:justify-between">
-        <span className="text-sm text-on-surface-variant">Showing {history.length ? 1 : 0} to {history.length} of {total} entries</span>
+        <span className="text-sm text-on-surface-variant">
+          Showing {history.length ? 1 : 0} to {history.length} of {total}{" "}
+          entries
+        </span>
         <div className="flex gap-2">
           <PaginationButton disabled label="Previous" />
-          <button className="h-10 w-10 rounded bg-primary font-medium text-on-primary">1</button>
+          <button className="h-10 w-10 rounded bg-primary font-medium text-on-primary">
+            1
+          </button>
           <PaginationButton label="2" />
           <PaginationButton label="3" />
         </div>
@@ -715,7 +848,9 @@ function HistoryTable({ history, total }) {
 
 function TableHead({ children, align = "" }) {
   return (
-    <th className={`px-6 py-4 font-label-md text-label-md uppercase tracking-wider text-on-surface-variant ${align}`}>
+    <th
+      className={`px-6 py-4 font-label-md text-label-md uppercase tracking-wider text-on-surface-variant ${align}`}
+    >
       {children}
     </th>
   );
@@ -724,11 +859,17 @@ function TableHead({ children, align = "" }) {
 function HistoryRow({ item, index }) {
   const safe = isSafe(item.label);
   return (
-    <tr className={`transition-colors hover:bg-surface-container-lowest ${safe ? "" : "bg-secondary/5"}`}>
+    <tr
+      className={`transition-colors hover:bg-surface-container-lowest ${safe ? "" : "bg-secondary/5"}`}
+    >
       <td className="px-6 py-4">
         <div className="flex flex-col">
-          <span className="font-medium text-on-surface">{formatDateOnly(item.created_at)}</span>
-          <span className="text-sm text-on-surface-variant">{formatTimeOnly(item.created_at)}</span>
+          <span className="font-medium text-on-surface">
+            {formatDateOnly(item.created_at)}
+          </span>
+          <span className="text-sm text-on-surface-variant">
+            {formatTimeOnly(item.created_at)}
+          </span>
         </div>
       </td>
       <td className="px-6 py-4">
@@ -736,17 +877,25 @@ function HistoryRow({ item, index }) {
           <div className="flex h-8 w-8 items-center justify-center rounded bg-surface-variant">
             <TestTube2 size={18} />
           </div>
-          <span className="font-medium">Sample #{item.id?.slice(0, 6) || index + 1}</span>
+          <span className="font-medium">
+            Sample #{item.id?.slice(0, 6) || index + 1}
+          </span>
         </div>
       </td>
       <td className="px-6 py-4">
         <div className="flex items-center gap-2">
-          <div className={`h-4 w-4 rounded-full shadow-sm ${safe ? "bg-primary-fixed" : "bg-secondary"}`} />
-          <span className="font-label-sm text-label-sm">{safe ? "Low (Curcumin Yellow)" : "High (Deep Orange)"}</span>
+          <div
+            className={`h-4 w-4 rounded-full shadow-sm ${safe ? "bg-primary-fixed" : "bg-secondary"}`}
+          />
+          <span className="font-label-sm text-label-sm">
+            {safe ? "Low (Curcumin Yellow)" : "High (Deep Orange)"}
+          </span>
         </div>
       </td>
       <td className="px-6 py-4">
-        <span className={`font-label-md text-label-md font-bold ${safe ? "text-on-surface-variant" : "text-secondary"}`}>
+        <span
+          className={`font-label-md text-label-md font-bold ${safe ? "text-on-surface-variant" : "text-secondary"}`}
+        >
           {item.label}
         </span>
       </td>
@@ -791,10 +940,14 @@ function ExportPage({
   notes,
   setNotes,
 }) {
-  const rowsForReport = selectedRows.length ? selectedRows : filteredHistory.slice(0, 5);
+  const [exportFormat, setExportFormat] = React.useState("pdf");
+
+  const rowsForReport = selectedRows;
 
   function toggleSelected(id) {
-    setSelectedIds((ids) => (ids.includes(id) ? ids.filter((item) => item !== id) : [...ids, id]));
+    setSelectedIds((ids) =>
+      ids.includes(id) ? ids.filter((item) => item !== id) : [...ids, id],
+    );
   }
 
   function selectAll() {
@@ -810,8 +963,12 @@ function ExportPage({
       <section className="mb-stack-lg">
         <div className="mb-6 flex flex-col gap-3 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h3 className="text-headline-lg font-headline-lg text-on-surface">Summary Dashboard</h3>
-            <p className="text-on-surface-variant">Ringkasan aktivitas pengetesan 30 hari terakhir.</p>
+            <h3 className="text-headline-lg font-headline-lg text-on-surface">
+              Summary Dashboard
+            </h3>
+            <p className="text-on-surface-variant">
+              Ringkasan aktivitas pengetesan 30 hari terakhir.
+            </p>
           </div>
           <div className="flex w-fit items-center gap-2 rounded border border-primary/20 bg-primary-container/10 px-3 py-1 font-label-md text-label-md text-primary">
             <CalendarDays size={16} />
@@ -819,10 +976,30 @@ function ExportPage({
           </div>
         </div>
         <div className="grid grid-cols-1 gap-gutter md:grid-cols-2 xl:grid-cols-4">
-          <ReportStat icon={TestTube2} label="Total Pengetesan" value={stats.total} delta="+12%" />
-          <ReportStat icon={TriangleAlert} label="Borax Terdeteksi" value={stats.detected} delta="+2" tone="alert" />
-          <ReportStat icon={Wifi} label="Waktu Aktif Sensor" value="99.8%" delta="Online" />
-          <ReportStat icon={FileText} label="Laporan Diekspor" value={Math.max(1, Math.ceil(history.length / 3))} />
+          <ReportStat
+            icon={TestTube2}
+            label="Total Pengetesan"
+            value={stats.total}
+            delta="+12%"
+          />
+          <ReportStat
+            icon={TriangleAlert}
+            label="Borax Terdeteksi"
+            value={stats.detected}
+            delta="+2"
+            tone="alert"
+          />
+          <ReportStat
+            icon={Wifi}
+            label="Waktu Aktif Sensor"
+            value="99.8%"
+            delta="Online"
+          />
+          <ReportStat
+            icon={FileText}
+            label="Laporan Diekspor"
+            value={Math.max(1, Math.ceil(history.length / 3))}
+          />
         </div>
       </section>
 
@@ -830,12 +1007,20 @@ function ExportPage({
         <div className="space-y-gutter xl:col-span-7">
           <section className="overflow-hidden rounded-xl border border-outline-variant bg-surface">
             <div className="flex flex-col gap-3 border-b border-outline-variant bg-surface-container-low p-6 md:flex-row md:items-center md:justify-between">
-              <h4 className="text-headline-md font-headline-md">Pilih Hasil Pengetesan</h4>
+              <h4 className="text-headline-md font-headline-md">
+                Pilih Hasil Pengetesan
+              </h4>
               <div className="flex gap-2">
-                <button onClick={selectAll} className="rounded px-3 py-1 font-label-md text-label-md text-primary hover:bg-primary/10">
+                <button
+                  onClick={selectAll}
+                  className="rounded px-3 py-1 font-label-md text-label-md text-primary hover:bg-primary/10"
+                >
                   Pilih Semua
                 </button>
-                <button onClick={clearSelection} className="rounded px-3 py-1 font-label-md text-label-md text-on-surface-variant hover:bg-surface-variant">
+                <button
+                  onClick={clearSelection}
+                  className="rounded px-3 py-1 font-label-md text-label-md text-on-surface-variant hover:bg-surface-variant"
+                >
                   Hapus Pilihan
                 </button>
               </div>
@@ -844,11 +1029,21 @@ function ExportPage({
               <table className="w-full min-w-[680px] border-collapse text-left">
                 <thead className="sticky top-0 z-10 bg-surface-container-high">
                   <tr>
-                    <th className="border-b border-outline-variant p-4 font-label-sm text-label-sm">Pilih</th>
-                    <th className="border-b border-outline-variant p-4 font-label-sm text-label-sm">ID Tes</th>
-                    <th className="border-b border-outline-variant p-4 font-label-sm text-label-sm">Tanggal</th>
-                    <th className="border-b border-outline-variant p-4 font-label-sm text-label-sm">Sampel</th>
-                    <th className="border-b border-outline-variant p-4 text-right font-label-sm text-label-sm">Hasil</th>
+                    <th className="border-b border-outline-variant p-4 font-label-sm text-label-sm">
+                      Pilih
+                    </th>
+                    <th className="border-b border-outline-variant p-4 font-label-sm text-label-sm">
+                      ID Tes
+                    </th>
+                    <th className="border-b border-outline-variant p-4 font-label-sm text-label-sm">
+                      Tanggal
+                    </th>
+                    <th className="border-b border-outline-variant p-4 font-label-sm text-label-sm">
+                      Sampel
+                    </th>
+                    <th className="border-b border-outline-variant p-4 text-right font-label-sm text-label-sm">
+                      Hasil
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -863,7 +1058,10 @@ function ExportPage({
                   ))}
                   {!filteredHistory.length && (
                     <tr>
-                      <td className="p-6 text-center text-on-surface-variant" colSpan="5">
+                      <td
+                        className="p-6 text-center text-on-surface-variant"
+                        colSpan="5"
+                      >
                         Belum ada hasil pengetesan.
                       </td>
                     </tr>
@@ -874,18 +1072,39 @@ function ExportPage({
           </section>
 
           <section className="rounded-xl border border-outline-variant bg-surface p-6">
-            <h4 className="mb-6 text-headline-md font-headline-md">Konfigurasi Laporan</h4>
+            <h4 className="mb-6 text-headline-md font-headline-md">
+              Konfigurasi Laporan
+            </h4>
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               <div className="space-y-3">
-                <label className="block font-label-md text-label-md text-on-surface">Format Dokumen</label>
+                <label className="block font-label-md text-label-md text-on-surface">
+                  Format Dokumen
+                </label>
                 <div className="grid grid-cols-3 gap-2">
-                  <FormatButton icon={FileText} label="PDF" active />
-                  <FormatButton icon={FileText} label="CSV" />
-                  <FormatButton icon={BarChart3} label="Excel" />
+                  <FormatButton
+                    icon={FileText}
+                    label="PDF"
+                    active={exportFormat === "pdf"}
+                    onClick={() => setExportFormat("pdf")}
+                  />
+                  <FormatButton
+                    icon={FileText}
+                    label="CSV"
+                    active={exportFormat === "csv"}
+                    onClick={() => setExportFormat("csv")}
+                  />
+                  <FormatButton
+                    icon={BarChart3}
+                    label="Excel"
+                    active={exportFormat === "excel"}
+                    onClick={() => setExportFormat("excel")}
+                  />
                 </div>
               </div>
               <label className="space-y-3">
-                <span className="block font-label-md text-label-md text-on-surface">Nama Teknisi</span>
+                <span className="block font-label-md text-label-md text-on-surface">
+                  Nama
+                </span>
                 <input
                   value={technician}
                   onChange={(event) => setTechnician(event.target.value)}
@@ -894,7 +1113,9 @@ function ExportPage({
               </label>
             </div>
             <label className="mt-6 block">
-              <span className="mb-2 block font-label-md text-label-md text-on-surface">Catatan Tambahan</span>
+              <span className="mb-2 block font-label-md text-label-md text-on-surface">
+                Catatan Tambahan
+              </span>
               <textarea
                 value={notes}
                 onChange={(event) => setNotes(event.target.value)}
@@ -908,8 +1129,12 @@ function ExportPage({
                 <Send size={18} />
               </div>
               <div>
-                <p className="font-label-md text-label-md text-on-surface">Tanda Tangan Digital</p>
-                <p className="mb-3 text-xs text-on-surface-variant">Tanda tangan yang tersimpan akan disematkan otomatis.</p>
+                <p className="font-label-md text-label-md text-on-surface">
+                  Tanda Tangan Digital
+                </p>
+                <p className="mb-3 text-xs text-on-surface-variant">
+                  Tanda tangan yang tersimpan akan disematkan otomatis.
+                </p>
                 <button className="rounded border border-tertiary bg-surface px-4 py-1.5 font-label-sm text-label-sm text-tertiary transition-colors hover:bg-tertiary hover:text-white">
                   Atur Tanda Tangan
                 </button>
@@ -922,7 +1147,13 @@ function ExportPage({
           rows={rowsForReport}
           technician={technician}
           notes={notes}
-          onDownload={() => downloadCsv(rowsForReport)}
+          onDownload={() => {
+            if (exportFormat === "pdf") {
+              downloadPdf(rowsForReport, technician, notes);
+            } else {
+              downloadCsv(rowsForReport);
+            }
+          }}
         />
       </div>
     </div>
@@ -932,16 +1163,32 @@ function ExportPage({
 function ReportStat({ icon: Icon, label, value, delta, tone = "default" }) {
   const alert = tone === "alert";
   return (
-    <div className={`relative overflow-hidden rounded-xl border bg-surface p-stack-md ${alert ? "border-error/30" : "border-outline-variant"}`}>
+    <div
+      className={`relative overflow-hidden rounded-xl border bg-surface p-stack-md ${alert ? "border-error/30" : "border-outline-variant"}`}
+    >
       {alert && <div className="absolute left-0 top-0 h-1 w-full bg-error" />}
       <div className="mb-4 flex items-start justify-between">
-        <div className={`rounded-lg p-2 ${alert ? "bg-error-container text-error" : "bg-primary-container/20 text-primary"}`}>
+        <div
+          className={`rounded-lg p-2 ${alert ? "bg-error-container text-error" : "bg-primary-container/20 text-primary"}`}
+        >
           <Icon size={22} />
         </div>
-        {delta && <span className={`font-label-sm text-label-sm ${alert ? "text-error" : "text-primary"}`}>{delta}</span>}
+        {delta && (
+          <span
+            className={`font-label-sm text-label-sm ${alert ? "text-error" : "text-primary"}`}
+          >
+            {delta}
+          </span>
+        )}
       </div>
-      <div className={`text-display-lg font-display-lg ${alert ? "text-error" : "text-primary"}`}>{value}</div>
-      <div className="font-label-md text-label-md text-on-surface-variant">{label}</div>
+      <div
+        className={`text-display-lg font-display-lg ${alert ? "text-error" : "text-primary"}`}
+      >
+        {value}
+      </div>
+      <div className="font-label-md text-label-md text-on-surface-variant">
+        {label}
+      </div>
     </div>
   );
 }
@@ -949,7 +1196,10 @@ function ReportStat({ icon: Icon, label, value, delta, tone = "default" }) {
 function SelectableRow({ item, index, selected, onToggle }) {
   const safe = isSafe(item.label);
   return (
-    <tr className={`cursor-pointer transition-colors hover:bg-surface-container ${safe ? "" : "bg-error-container/5"}`} onClick={onToggle}>
+    <tr
+      className={`cursor-pointer transition-colors hover:bg-surface-container ${safe ? "" : "bg-error-container/5"}`}
+      onClick={onToggle}
+    >
       <td className="border-b border-outline-variant p-4">
         <input
           checked={selected}
@@ -959,9 +1209,15 @@ function SelectableRow({ item, index, selected, onToggle }) {
           type="checkbox"
         />
       </td>
-      <td className="border-b border-outline-variant p-4 font-label-md text-label-md">#BRX-{String(index + 1).padStart(4, "0")}</td>
-      <td className="border-b border-outline-variant p-4 text-sm text-on-surface-variant">{formatDate(item.created_at)}</td>
-      <td className="border-b border-outline-variant p-4 text-sm">Sample #{item.id?.slice(0, 6) || index + 1}</td>
+      <td className="border-b border-outline-variant p-4 font-label-md text-label-md">
+        #BRX-{String(index + 1).padStart(4, "0")}
+      </td>
+      <td className="border-b border-outline-variant p-4 text-sm text-on-surface-variant">
+        {formatDate(item.created_at)}
+      </td>
+      <td className="border-b border-outline-variant p-4 text-sm">
+        Sample #{item.id?.slice(0, 6) || index + 1}
+      </td>
       <td className="border-b border-outline-variant p-4 text-right">
         <StatusBadge label={item.label} compact />
       </td>
@@ -969,9 +1225,10 @@ function SelectableRow({ item, index, selected, onToggle }) {
   );
 }
 
-function FormatButton({ icon: Icon, label, active = false }) {
+function FormatButton({ icon: Icon, label, active = false, onClick }) {
   return (
     <button
+      onClick={onClick}
       className={`flex flex-col items-center justify-center rounded-xl p-3 transition-all ${
         active
           ? "border-2 border-primary bg-primary/5 text-primary"
@@ -985,6 +1242,9 @@ function FormatButton({ icon: Icon, label, active = false }) {
 }
 
 function ReportPreview({ rows, technician, notes, onDownload }) {
+  const isBlank = rows.length === 0;
+  const tableData = isBlank ? Array(10).fill({}) : rows;
+
   return (
     <aside className="xl:col-span-5">
       <div className="sticky top-24 overflow-hidden rounded-xl border border-outline-variant bg-surface shadow-lg">
@@ -993,48 +1253,80 @@ function ReportPreview({ rows, technician, notes, onDownload }) {
             <FileText className="text-on-surface-variant" size={19} />
             <span className="font-label-md text-label-md">Preview Laporan</span>
           </div>
-          <span className="text-xs italic text-on-surface-variant">Halaman 1 dari 1</span>
+          <span className="text-xs italic text-on-surface-variant">
+            Halaman 1 dari 1
+          </span>
         </div>
 
-        <div className="relative aspect-[1/1.41] overflow-hidden bg-white p-8">
-          <div className="mb-6 flex items-start justify-between border-b-2 border-primary pb-4">
-            <div>
-              <h5 className="text-xl font-bold uppercase tracking-wider text-primary">Laboratorium Analisis Pangan</h5>
-              <p className="text-[10px] text-on-surface-variant">Laporan Resmi Deteksi Boraks IoT - BoraxSense</p>
-            </div>
-            <div className="text-right">
-              <p className="text-[10px] font-bold">NOMOR LAPORAN</p>
-              <p className="font-mono text-[12px]">LAB/BRX/{new Date().getFullYear()}/0042</p>
-            </div>
+        <div className="relative aspect-[1/1.41] overflow-hidden bg-white p-8 text-black">
+          <div className="mb-6 text-center">
+            <h5 className="text-lg font-bold text-black">
+              LAPORAN HASIL DETEKSI BORAKS
+            </h5>
           </div>
 
-          <div className="mb-8 grid grid-cols-2 gap-4">
-            <div>
-              <p className="text-[9px] font-bold text-on-surface-variant">DICETAK OLEH</p>
-              <p className="text-[11px]">{technician || "-"}</p>
-            </div>
-            <div>
-              <p className="text-[9px] font-bold text-on-surface-variant">TANGGAL PENERBITAN</p>
-              <p className="text-[11px]">{formatDateOnly(new Date().toISOString())}</p>
-            </div>
+          <div className="mb-4">
+            <p className="text-[11px] text-black">
+              Tanggal Cetak: {new Date().toLocaleDateString("id-ID")}
+            </p>
+            <p className="text-[11px] text-black">
+              Nama :{" "}
+              {technician || "................................................"}
+            </p>
           </div>
 
-          <div className="border border-outline-variant">
-            <table className="w-full text-[10px]">
-              <thead className="bg-surface-container">
+          <div className="mb-4">
+            <table className="w-full border-collapse border border-gray-400 text-[10px] text-black">
+              <thead className="bg-[#2980b9] text-white">
                 <tr>
-                  <th className="border-b border-r border-outline-variant p-2 text-left">ID SAMPEL</th>
-                  <th className="border-b border-r border-outline-variant p-2 text-left">SAMPLING</th>
-                  <th className="border-b border-outline-variant p-2 text-right">HASIL AKHIR</th>
+                  <th className="border border-gray-400 p-1.5 text-center">
+                    No
+                  </th>
+                  <th className="border border-gray-400 p-1.5 text-center">
+                    ID Tes
+                  </th>
+                  <th className="border border-gray-400 p-1.5 text-center">
+                    Waktu
+                  </th>
+                  <th className="border border-gray-400 p-1.5 text-center">
+                    Status
+                  </th>
+                  <th className="border border-gray-400 p-1.5 text-center">
+                    Confidence
+                  </th>
                 </tr>
               </thead>
               <tbody>
-                {rows.slice(0, 5).map((row, index) => (
-                  <tr key={row.id || index} className={isSafe(row.label) ? "" : "bg-error-container/10"}>
-                    <td className="border-b border-r border-outline-variant p-2">#BRX-{String(index + 1).padStart(4, "0")}</td>
-                    <td className="border-b border-r border-outline-variant p-2">Sample #{row.id?.slice(0, 6) || index + 1}</td>
-                    <td className={`border-b border-outline-variant p-2 text-right font-bold ${isSafe(row.label) ? "text-primary" : "text-error"}`}>
-                      {isSafe(row.label) ? "NEGATIF" : `POSITIF (${row.label})`}
+                {tableData.map((row, index) => (
+                  <tr key={row.id || index}>
+                    <td className="border border-gray-400 p-1.5 text-center">
+                      {isBlank ? "" : index + 1}
+                    </td>
+                    <td className="border border-gray-400 p-1.5 text-center">
+                      {isBlank
+                        ? ""
+                        : row.id || `TST-${Math.floor(Math.random() * 1000)}`}
+                    </td>
+                    <td className="border border-gray-400 p-1.5 text-center">
+                      {isBlank
+                        ? ".................."
+                        : formatDate(row.created_at) || ".................."}
+                    </td>
+                    <td className="border border-gray-400 p-1.5 text-center">
+                      {isBlank
+                        ? ".................."
+                        : row.label
+                          ? isSafe(row.label)
+                            ? "Aman"
+                            : "Terdeteksi"
+                          : ".................."}
+                    </td>
+                    <td className="border border-gray-400 p-1.5 text-center">
+                      {isBlank
+                        ? ".................."
+                        : row.confidence
+                          ? `${Number(row.confidence).toFixed(2)}%`
+                          : ".................."}
                     </td>
                   </tr>
                 ))}
@@ -1042,25 +1334,21 @@ function ReportPreview({ rows, technician, notes, onDownload }) {
             </table>
           </div>
 
-          <div className="mt-8">
-            <p className="mb-2 text-[9px] font-bold text-on-surface-variant">CATATAN LABORATORIUM:</p>
-            <p className="border-l-2 border-outline-variant pl-3 text-[10px] italic leading-relaxed text-on-surface-variant">
-              {notes || "Analisis dilakukan menggunakan sensor BoraxSense dengan integrasi model klasifikasi berbasis citra."}
+          <div className="mt-4">
+            <p className="mb-1 text-[11px] font-bold text-black">
+              Catatan Tambahan:
+            </p>
+            <p className="text-[10px] italic leading-relaxed text-black">
+              {notes ||
+                "........................................................................................................................................................................................................................"}
             </p>
           </div>
 
-          <div className="absolute bottom-12 right-12 w-32 text-center">
-            <p className="mb-8 text-[9px]">Disahkan Oleh,</p>
-            <div className="flex h-12 items-center justify-center overflow-hidden border-b border-on-surface">
-              <span className="font-label-md text-label-md italic text-primary">Verified</span>
-            </div>
-            <p className="mt-1 text-[10px] font-bold">{technician?.split(" ").slice(-1)[0] || "Analyst"}</p>
-            <p className="text-[8px] uppercase text-on-surface-variant">Senior Analyst</p>
-          </div>
-
-          <div className="absolute bottom-4 left-8 right-8 flex justify-between border-t border-outline-variant pt-2">
-            <span className="text-[8px] text-on-surface-variant">BoraxSense IoT - Laboratory Cloud Connectivity Enabled</span>
-            <span className="text-[8px] text-on-surface-variant">UUID: local-report</span>
+          <div className="absolute bottom-16 right-12 w-40 text-center">
+            <p className="mb-12 text-[11px] text-black">Mengetahui,</p>
+            <p className="text-[11px] text-black">
+              {technician || "...................................."}
+            </p>
           </div>
         </div>
 
@@ -1115,7 +1403,9 @@ function filterHistory(history, query, statusFilter) {
     const textMatches =
       !needle ||
       [item.label, item.source, item.created_at, item.id].some((value) =>
-        String(value || "").toLowerCase().includes(needle),
+        String(value || "")
+          .toLowerCase()
+          .includes(needle),
       );
     return statusMatches && textMatches;
   });
@@ -1123,17 +1413,22 @@ function filterHistory(history, query, statusFilter) {
 
 function getStats(history) {
   const safe = history.filter((item) => isSafe(item.label)).length;
-  const confidenceValues = history.map((item) => Number(item.confidence || 0)).filter(Boolean);
+  const confidenceValues = history
+    .map((item) => Number(item.confidence || 0))
+    .filter(Boolean);
   const average =
     confidenceValues.length > 0
-      ? confidenceValues.reduce((total, value) => total + value, 0) / confidenceValues.length
+      ? confidenceValues.reduce((total, value) => total + value, 0) /
+        confidenceValues.length
       : 0;
 
   return {
     total: history.length,
     safe,
     detected: history.length - safe,
-    averageConfidence: confidenceValues.length ? `${(average * 100).toFixed(1)}%` : "-",
+    averageConfidence: confidenceValues.length
+      ? `${(average * 100).toFixed(1)}%`
+      : "-",
   };
 }
 
@@ -1147,27 +1442,103 @@ function parsePpm(label) {
 }
 
 function downloadCsv(rows) {
-  const headers = ["id", "created_at", "label", "status", "confidence", "source", "image_url"];
+  const headers = [
+    "id",
+    "created_at",
+    "label",
+    "status",
+    "confidence",
+    "source",
+    "image_url",
+  ];
   const csvRows = [
     headers.join(","),
     ...rows.map((row) =>
       headers
         .map((header) => {
           const value =
-            header === "status" ? (isSafe(row.label) ? "Lolos" : "Tidak Lolos") : row[header] ?? "";
+            header === "status"
+              ? isSafe(row.label)
+                ? "Lolos"
+                : "Tidak Lolos"
+              : (row[header] ?? "");
           return `"${String(value).replaceAll('"', '""')}"`;
         })
         .join(","),
     ),
   ];
 
-  const blob = new Blob([csvRows.join("\n")], { type: "text/csv;charset=utf-8" });
+  const blob = new Blob([csvRows.join("\n")], {
+    type: "text/csv;charset=utf-8",
+  });
   const url = URL.createObjectURL(blob);
   const anchor = document.createElement("a");
   anchor.href = url;
   anchor.download = `borax-report-${new Date().toISOString().slice(0, 10)}.csv`;
   anchor.click();
   URL.revokeObjectURL(url);
+}
+
+function downloadPdf(rows, technician, notes) {
+  const doc = new jsPDF();
+
+  doc.setFontSize(18);
+  doc.text("LAPORAN HASIL DETEKSI BORAKS", 105, 20, { align: "center" });
+
+  doc.setFontSize(11);
+  doc.text(`Tanggal Cetak: ${new Date().toLocaleDateString("id-ID")}`, 14, 30);
+  doc.text(
+    `Nama : ${technician || "................................................"}`,
+    14,
+    36,
+  );
+
+  const isBlank = rows.length === 0;
+
+  const tableData = isBlank
+    ? Array(10).fill(["", "", "", "", ""])
+    : rows.map((row, i) => [
+        i + 1,
+        row.id || `TST-${Math.floor(Math.random() * 1000)}`,
+        formatDate(row.created_at) || "..................",
+        row.label
+          ? isSafe(row.label)
+            ? "Aman"
+            : "Terdeteksi"
+          : "..................",
+        row.confidence
+          ? `${Number(row.confidence).toFixed(2)}%`
+          : "..................",
+      ]);
+
+  autoTable(doc, {
+    startY: 45,
+    head: [["No", "ID Tes", "Waktu", "Status", "Confidence"]],
+    body: tableData,
+    theme: "grid",
+    headStyles: { fillColor: [41, 128, 185] },
+  });
+
+  const finalY = doc.lastAutoTable.finalY || 45;
+  doc.text("Catatan Tambahan:", 14, finalY + 10);
+
+  doc.setFontSize(10);
+  const splitNotes = doc.splitTextToSize(
+    notes ||
+      "........................................................................................................................................................................................................................",
+    180,
+  );
+  doc.text(splitNotes, 14, finalY + 16);
+
+  doc.setFontSize(11);
+  doc.text("Mengetahui,", 150, finalY + 40);
+  doc.text(
+    technician || "....................................",
+    150,
+    finalY + 65,
+  );
+
+  doc.save(`Laporan_Boraks_${new Date().toISOString().slice(0, 10)}.pdf`);
 }
 
 async function readError(response) {
