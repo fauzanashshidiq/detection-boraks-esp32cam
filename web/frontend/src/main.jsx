@@ -111,11 +111,11 @@ function App() {
             {loading ? "Memproses..." : "Capture & Test"}
           </button>
 
-          <label className="upload-button">
+          {/* <label className="upload-button">
             <ImageUp size={18} />
             Upload Gambar
             <input type="file" accept="image/*" onChange={predictUpload} />
-          </label>
+          </label> */}
 
           {error && <p className="error">{error}</p>}
         </div>
@@ -139,7 +139,7 @@ function ResultPanel({ result }) {
     return (
       <div className="panel result-empty">
         <h2>Belum ada hasil</h2>
-        <p>Capture dari ESP32-CAM atau upload gambar untuk mulai prediksi.</p>
+        <p>Capture dari ESP32-CAM untuk mulai prediksi.</p>
       </div>
     );
   }
