@@ -79,7 +79,9 @@ function App() {
 
   async function loadHistory() {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/history`);
+      const response = await fetch(`${API_BASE_URL}/api/history`, {
+        headers: { "ngrok-skip-browser-warning": "true" }
+      });
       if (!response.ok) throw new Error(await readError(response));
       const payload = await response.json();
       setHistory(payload);
@@ -95,7 +97,10 @@ function App() {
     try {
       const response = await fetch(`${API_BASE_URL}/api/predict/camera`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { 
+          "Content-Type": "application/json",
+          "ngrok-skip-browser-warning": "true"
+        },
         body: JSON.stringify({ camera_url: cameraUrl }),
       });
       if (!response.ok) throw new Error(await readError(response));
@@ -120,6 +125,7 @@ function App() {
       formData.append("file", file);
       const response = await fetch(`${API_BASE_URL}/api/predict/upload`, {
         method: "POST",
+        headers: { "ngrok-skip-browser-warning": "true" },
         body: formData,
       });
       if (!response.ok) throw new Error(await readError(response));
