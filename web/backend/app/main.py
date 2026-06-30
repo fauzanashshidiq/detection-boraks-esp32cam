@@ -9,7 +9,14 @@ from app.supabase_service import SupabaseHistoryService
 
 
 settings = get_settings()
-model_service = BoraxModelService(settings.model_path, settings.model_class_names)
+model_service = BoraxModelService(
+    settings.model_path,
+    settings.model_class_names,
+    hf_space_id=settings.hf_space_id,
+    hf_api_url=settings.hf_api_url,
+    hf_api_name=settings.hf_api_name,
+    hf_api_timeout=settings.hf_api_timeout,
+)
 history_service = SupabaseHistoryService(settings)
 
 app = FastAPI(title=settings.app_name)
@@ -29,8 +36,13 @@ def health():
         "status": "ok",
         "model_path": str(settings.model_path),
         "model_class_names": settings.model_class_names,
+        "prediction_provider": "hugging_face" if model_service.uses_hugging_face else "local",
+        "hf_space_id": settings.hf_space_id,
+        "hf_api_url": settings.hf_api_url,
+        "hf_api_name": settings.hf_api_name,
         "esp32_camera_url": settings.esp32_camera_url,
         "supabase_enabled": history_service.enabled,
+        "memory_history_enabled": settings.enable_memory_history,
     }
 
 
@@ -63,10 +75,28 @@ def get_history(limit: int = 50):
     return history_service.list_history(limit=limit)
 
 
+@app.get("/api/stats")
+def get_stats():
+    history = history_service.list_history(limit=500)
+    total = len(history)
+    safe = sum(1 for item in history if str(item.get("label", "")).startswith("0ppm"))
+    detected = total - safe
+    confidence_values = [float(item.get("confidence") or 0) for item in history]
+    average_confidence = (
+        sum(confidence_values) / len(confidence_values) if confidence_values else 0
+    )
+    return {
+        "total": total,
+        "safe": safe,
+        "detected": detected,
+        "average_confidence": average_confidence,
+    }
+
+
 def _predict_and_store(image_bytes: bytes, source: str):
     try:
         prediction = model_service.predict_jpeg_bytes(image_bytes)
-    except (ValueError, FileNotFoundError) as exc:
+    except (ValueError, FileNotFoundError, RuntimeError) as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     stored = history_service.save_detection(image_bytes, prediction, source=source)
@@ -74,4 +104,6 @@ def _predict_and_store(image_bytes: bytes, source: str):
         **prediction,
         "image_url": stored["image_url"],
         "history_id": stored["history_id"],
+        "created_at": stored.get("created_at"),
+        "source": stored.get("source", source),
     }

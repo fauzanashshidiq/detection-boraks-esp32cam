@@ -1,0 +1,5 @@
+-r requirements.txt
+tensorflow>=2.10,<3
+opencv-python>=4.8
+numpy>=1.23
+scikit-learn>=1.2
