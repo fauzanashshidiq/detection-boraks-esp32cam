@@ -157,6 +157,7 @@ Isi URL ESP32-CAM, lalu klik `Capture & Test`.
 - `POST /api/predict/upload`
 - `POST /api/predict/camera`
 - `GET /api/history`
+- `GET /api/stats`
 
 ## Catatan Deployment
 

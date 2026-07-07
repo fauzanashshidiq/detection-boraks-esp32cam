@@ -1,24 +1,22 @@
-# Deteksi Boraks ESP32-CAM
+# Deteksi Boraks ESP32-CAM Berbasis Kolorimetri Kurkumin dan Analisis RGB _Deep Learning_
 
-Sistem deteksi kadar boraks menggunakan ESP32-CAM dengan Deep Learning (CNN). Proyek ini mencakup akuisisi dataset, preprocessing gambar, pelatihan model CNN, dan prediksi real-time.
+**BoraxSense IoT - Portable Food Safety Screening**
 
-## Status Proyek
+Proyek ini adalah sistem deteksi kadar boraks cerdas berbasis Kecerdasan Buatan (Deep Learning). Menggunakan mikrokontroler **ESP32-CAM**, sistem ini menangkap perubahan warna pada kertas indikator kurkumin secara _real-time_. Citra yang diambil kemudian diproses dan diklasifikasikan oleh model **Convolutional Neural Network (CNN)** untuk memprediksi rentang konsentrasi boraks pada sampel makanan secara akurat.
 
-✅ **Selesai:**
-- Sistem akuisisi dataset dari ESP32-CAM via web interface
-- Ekstraksi fitur RGB dan HSV dari gambar
-- Segmentasi kertas kurkumin otomatis menggunakan HSV
-- Pelatihan model CNN dengan dataset berlabel
-- Model trained: `borax_cnn_model.h5` dan `best_borax_model.h5`
-- Prediksi dan klasifikasi kadar boraks
+Repositori ini mencakup keseluruhan _pipeline_ dari awal hingga akhir, meliputi: akuisisi dataset gambar, preprocessing (ekstraksi fitur RGB dan segmentasi area aktif menggunakan HSV), pelatihan model _Deep Learning_, hingga implementasi antarmuka pengguna berupa _Dashboard Web_ yang modern. Dashboard tersebut memungkinkan teknisi untuk memonitor hasil uji, melihat riwayat deteksi di _cloud_, dan menghasilkan laporan resmi (PDF) secara otomatis.
 
-## Teknologi
+## Latar Belakang
 
-- **Hardware**: ESP32-CAM untuk capture gambar
-- **Deep Learning**: TensorFlow/Keras untuk CNN
-- **Image Processing**: OpenCV untuk segmentasi HSV
-- **ML**: Scikit-learn untuk feature extraction & classification
-- **Web**: Python server untuk dataset collection
+Keamanan pangan merupakan isu kesehatan masyarakat yang sangat krusial, terutama dengan maraknya penyalahgunaan bahan kimia industri seperti boraks sebagai pengawet makanan. Meskipun metode laboratorium konvensional sangat akurat, sayangnya metode tersebut mahal, rumit, dan tidak bisa digunakan untuk pengujian cepat di lapangan. Untuk mengatasi masalah tersebut, proyek ini memanfaatkan ekstrak kurkumin (kunyit) alami yang bereaksi menjadi kemerahan saat terpapar boraks, yang kemudian digabungkan dengan teknologi kamera dan Kecerdasan Buatan untuk menciptakan alat skrining portabel yang murah, cepat, dan sepenuhnya objektif tanpa bias penglihatan manusia.
+
+## Teknologi Utama
+
+- **Hardware**: ESP32-CAM (OV2640)
+- **Machine Learning**: TensorFlow/Keras untuk model CNN
+- **Computer Vision**: OpenCV untuk manipulasi citra dan segmentasi warna
+- **Backend (API)**: FastAPI (Python) terintegrasi dengan Hugging Face & Supabase (Database)
+- **Frontend (UI)**: React.js (Vite) lengkap dengan TailwindCSS dan fitur ekspor PDF (jsPDF)
 
 ## Instalasi
 
@@ -30,19 +28,20 @@ pip install -r requirements.txt
 
 ### Menjalankan Web Interface
 
-```powershell
-python .\dataset_web\server.py
-```
+Web interface terbaru untuk akuisisi dataset dan dashboard lengkap sekarang berada di dalam folder `web/`.
+Silakan baca panduan lengkapnya di `web/README.md`.
 
-Buka browser: `http://127.0.0.1:8000`
+(Script lama `dataset_web/server.py` sudah usang dan digantikan oleh arsitektur Frontend-Backend yang baru).
 
 Langkah-langkah:
+
 1. Isi URL snapshot ESP32-CAM
 2. Pilih label kadar ppm (0-2000ppm)
 3. Tekan **Ambil & Simpan Gambar**
 4. Jika hasil kurang bagus, tekan **Hapus** untuk menghapus file
 
 **Setup ESP32-CAM:**
+
 - Upload sketch: `esp32cam_capture_server.ino`
 - Lihat IP DHCP dari Serial Monitor Arduino IDE
 - Gunakan URL format: `http://<IP_DHCP_ESP32>/capture`
@@ -56,22 +55,20 @@ dataset\<label_ppm>\<label_ppm>_<tanggal>_<jam>.jpg
 ```
 
 Contoh:
+
 ```
 dataset\20ppm\20ppm_20260606_143012_125.jpg
 ```
 
-### Label PPM (Kadar Boraks)
+### Label PPM (Kadar Boraks - Dataset Range)
+
+Dataset terbaru dikelompokkan berdasarkan rentang (range) kadar:
 
 - 0ppm
-- 100ppm
-- 250ppm
-- 500ppm
-- 750ppm
-- 1000ppm
-- 1250ppm
-- 1500ppm
-- 1750ppm
-- 2000ppm
+- 100-250ppm
+- 500-1000ppm
+- 1250-1500ppm
+- 1750-2000ppm
 
 ## 2. Ekstraksi Fitur RGB
 
@@ -86,6 +83,7 @@ python .\rgb_extract.py
 Hasil disimpan ke: `rgb_features.csv`
 
 **Opsi crop** (ambil area tengah):
+
 ```powershell
 python .\rgb_extract.py --crop 0.4
 ```
@@ -101,11 +99,13 @@ python .\extract_curcumin_rgb.py
 Hasil: `curcumin_rgb_features.csv`
 
 **Mode debug** (lihat visualisasi mask):
+
 ```powershell
 python .\extract_curcumin_rgb.py --debug-masks
 ```
 
 **Mask warna:**
+
 - 🔴 **Merah**: area reaksi boraks (RGB utama)
 - 🟡 **Kuning**: warna dasar kertas kurkumin (diabaikan)
 - ⚫ **Abu-abu**: area kertas kurkumin lainnya
@@ -121,6 +121,7 @@ python .\train.py
 ```
 
 **Fitur:**
+
 - Preprocessing gambar (segmentasi HSV, crop center 60%)
 - Data augmentation (rotasi, flip, brightness)
 - Model CNN dengan batch normalization
@@ -129,9 +130,9 @@ python .\train.py
 - Logging training ke `training_log.csv`
 
 **Parameter training:**
+
 ```python
-CLASS_NAMES = ["0ppm", "100ppm", "250ppm", "500ppm", "750ppm", 
-               "1000ppm", "1250ppm", "1500ppm", "1750ppm", "2000ppm"]
+CLASS_NAMES = ["0ppm", "100-250ppm", "500-1000ppm", "1250-1500ppm", "1750-2000ppm"]
 IMG_SIZE = (128, 128)
 BATCH_SIZE = 32
 EPOCHS = 200
@@ -140,6 +141,7 @@ EPOCHS = 200
 ### Training Log
 
 Log tersimpan di `training_log.csv` dengan metrik:
+
 - accuracy, loss
 - val_accuracy, val_loss
 
@@ -152,10 +154,12 @@ python .\predict.py --image <path_to_image> --model borax_cnn_model.h5
 ```
 
 **Opsi model:**
+
 - `borax_cnn_model.h5` (model utama)
 - `best_borax_model.h5` (best checkpoint)
 
 **Output:**
+
 - Klasifikasi kadar boraks
 - Confidence score
 - Visualisasi gambar hasil segmentasi
@@ -169,11 +173,11 @@ python .\predict.py --image <path_to_image> --model borax_cnn_model.h5
 ├── rgb_extract.py                # Ekstraksi fitur RGB
 ├── extract_curcumin_rgb.py       # Ekstraksi RGB kertas kurkumin
 ├── esp32cam_capture_server.ino   # Sketch ESP32-CAM
-├── dataset_web/
-│   └── server.py                 # Web interface untuk capture dataset
-├── dataset/                      # Dataset folder (struktur: <ppm>/<images>)
-├── dataset_range/                # Dataset dengan range ppm
-├── dataset_web/                  # Web capture history
+├── web/
+│   ├── frontend/                 # React Web Dashboard & Capture
+│   └── backend/                  # FastAPI & ML Inference API
+├── dataset/                      # Dataset folder lama
+├── dataset_range/                # Dataset terbaru dengan range ppm
 ├── curcumin_masks/               # Debugging masks dari ekstraksi
 ├── borax_cnn_model.h5            # Trained CNN model
 ├── best_borax_model.h5           # Best checkpoint model
@@ -211,3 +215,11 @@ scikit-learn>=1.2
 - CNN di-train dengan data augmentation untuk robustness
 - Setiap prediksi melakukan preprocessing otomatis (segmentasi + normalisasi)
 - Best model disimpan berdasarkan validation accuracy
+
+## Tim Pengembang
+
+| Nama                      | NIM        |
+| ------------------------- | ---------- |
+| NANDA ZACKY FIRMANSYAH    | 1237050059 |
+| MUHAMMAD FAUZAN ASHSHIDIQ | 1237050051 |
+| NISRINA ALIYA THARIFAH    | 1237050044 |
