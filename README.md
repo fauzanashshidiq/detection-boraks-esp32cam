@@ -2,7 +2,9 @@
 
 **BoraxSense IoT - Portable Food Safety Screening**
 
-Proyek ini adalah sistem deteksi kadar boraks cerdas berbasis Kecerdasan Buatan (Deep Learning). Menggunakan mikrokontroler **ESP32-CAM**, sistem ini menangkap perubahan warna pada kertas indikator kurkumin secara _real-time_. Citra yang diambil kemudian diproses dan diklasifikasikan oleh model **Convolutional Neural Network (CNN)** untuk memprediksi rentang konsentrasi boraks pada sampel makanan secara akurat.
+Proyek ini merupakan sistem deteksi boraks portabel berbasis *Internet of Things (IoT)* dan *Deep Learning* yang dirancang untuk membantu proses skrining keamanan pangan secara cepat, praktis, dan objektif.
+
+Sistem menggunakan *ESP32-CAM* untuk mengambil citra kertas indikator kurkumin yang telah bereaksi dengan sampel makanan. Perubahan warna yang terjadi dianalisis menggunakan teknik *Computer Vision* dan diklasifikasikan oleh model *Convolutional Neural Network (CNN)* untuk memperkirakan rentang kadar boraks pada sampel.
 
 Repositori ini mencakup keseluruhan _pipeline_ dari awal hingga akhir, meliputi: akuisisi dataset gambar, preprocessing (ekstraksi fitur RGB dan segmentasi area aktif menggunakan HSV), pelatihan model _Deep Learning_, hingga implementasi antarmuka pengguna berupa _Dashboard Web_ yang modern. Dashboard tersebut memungkinkan teknisi untuk memonitor hasil uji, melihat riwayat deteksi di _cloud_, dan menghasilkan laporan resmi (PDF) secara otomatis.
 
